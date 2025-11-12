@@ -7,72 +7,87 @@ export default function handler(req, res) {
   const { message } = req.body;
   const lowerMsg = message.toLowerCase();
 
-  // 🧠 Knowledge Base (RAG-style)
+  // 💡 Marvin’s Personal Knowledge Base
   const knowledge = [
     {
       keywords: ["who are you", "your name", "introduce", "yourself", "marvin"],
       answer:
-        "Hi! I'm Marvin Showkat — a Computer Science student at BITS Pilani and a Full Stack Developer at Omang Technologies. I’m passionate about AI, web development, and building meaningful digital products.",
+        "Hey there! I’m Marvin Showkat — a Computer Science Graduate from BITS Pilani, Dubai. I’m passionate about Artificial Intelligence, web development, and creating technology that makes people’s lives better.",
     },
     {
-      keywords: ["education", "college", "study", "degree", "bits"],
+      keywords: ["life story", "your story", "background", "about your life"],
       answer:
-        "I'm pursuing a B.Tech in Computer Science from BITS Pilani, where I’ve focused on AI, web technologies, and software engineering.",
+        "I was born and raised in Kashmir, India. My journey has been about exploring technology, from coding my first web app to developing AI-powered assistants. I believe curiosity and persistence are what drive me.",
     },
     {
-      keywords: ["work", "job", "experience", "internship", "omang"],
+      keywords: ["education", "college", "study", "bits", "degree"],
       answer:
-        "I currently work as a Full Stack Developer at Omang Technologies, where I’ve been contributing to the YourMakan apartment management platform using Laravel and modern frontend technologies.",
+        "I did my B.Tech in Computer Science from BITS Pilani, Dubai, maintaining a GPA of 8.5. My focus areas include AI, full-stack development, and system design.",
     },
     {
-      keywords: ["skills", "languages", "programming", "technologies"],
+      keywords: ["experience", "work", "job", "omang", "internship"],
       answer:
-        "My core skills include Java, JavaScript, HTML, CSS, PHP, Python, and SQL. I also work with frameworks like Laravel, Flask, and React, and I’m skilled in AI tools like LangChain.",
+        "I recently completed my internship as a Full Stack Developer at Omang Technologies. I worked on 'YourMakan' — an apartment management web platform. I developed front-end panels using Laravel, Tailwind, and JavaScript while collaborating with the backend team to debug and improve performance.",
     },
     {
-      keywords: ["projects", "portfolio", "work samples"],
+      keywords: ["enterprise pivot", "previous job", "past experience"],
       answer:
-        "Some of my key projects include: 1️⃣ BRSR Web App using Flask and MySQL, 2️⃣ Vehicle Number Plate Reader using Python and OpenCV, 3️⃣ ATM Simulation in Java, and 4️⃣ Geofence-IoT-Blind-Stick — a safety device for visually impaired individuals.",
+        "Earlier, I worked as a Front-End Developer at Enterprise Pivot, where I helped build a web-based BRSR application using Flask, HTML, CSS, and MySQL. It was an amazing experience that improved my teamwork and problem-solving skills.",
     },
     {
-      keywords: ["goals", "dream", "career", "future", "vision"],
+      keywords: ["superpower", "strength", "best quality"],
       answer:
-        "My long-term goal is to become the CEO of a multinational company, building innovative AI-driven solutions that make real-world impact.",
+        "My #1 superpower is adaptability — I can quickly learn new technologies and adjust to different working environments. It helps me stay ahead and deliver results efficiently.",
     },
     {
-      keywords: ["superpower"],
+      keywords: ["grow", "improve", "development areas"],
       answer:
-        "My #1 superpower is adaptability — I can quickly learn and apply new technologies to thrive in fast-paced environments.",
-    },
-    {
-      keywords: ["grow", "growth areas", "improve"],
-      answer:
-        "I’d like to grow further in AI engineering, scalable cloud systems, and leadership skills.",
+        "The top 3 areas I want to grow in are: advanced AI engineering, scalable cloud architecture, and leadership — so I can lead impactful tech projects in the future.",
     },
     {
       keywords: ["misconception", "coworkers", "people think"],
       answer:
-        "A common misconception my coworkers have about me is that I’m quiet — but once I get comfortable, I’m full of creative ideas!",
+        "A common misconception my coworkers have about me is that I’m quiet — but once I’m comfortable, I’m full of creative ideas and love brainstorming with my team.",
     },
     {
-      keywords: ["boundaries", "limits", "challenges"],
+      keywords: ["boundaries", "limits", "challenges", "push yourself"],
       answer:
-        "I push my boundaries by taking on challenges that scare me a little. I believe growth happens outside your comfort zone.",
+        "I push my boundaries by taking on projects that challenge me technically and personally. I believe the best learning happens outside your comfort zone.",
     },
     {
-      keywords: ["hobbies", "sports", "free time"],
+      keywords: ["projects", "portfolio", "work samples", "build"],
       answer:
-        "I love playing cricket and badminton — they keep me active, focused, and balanced.",
+        "Some of my key projects include: 1️⃣ AI-Powered Customer Support Agent using GPT-4 mini, Twilio, and Make.com, 2️⃣ Geofence IoT Blind Stick using NodeMCU and MongoDB, and 3️⃣ Automated License Plate Recognition using Python and OpenCV. Each project reflects my love for blending AI with real-world use cases.",
+    },
+    {
+      keywords: ["skills", "languages", "tech stack", "technologies", "tools"],
+      answer:
+        "I’m skilled in Python, JavaScript, C++, Java, PHP, and SQL. I work with frameworks like React, Node.js, Laravel, Flask, and Tailwind CSS. I also have experience with AI frameworks like LangChain and RAG, and tools such as Voiceflow, Make.com, and Twilio.",
+    },
+    {
+      keywords: ["goals", "dream", "career", "future", "vision"],
+      answer:
+        "My goal is to become an AI Engineer and eventually the CEO of a tech-driven company. I want to lead projects that use AI to solve real problems and create meaningful impact.",
+    },
+    {
+      keywords: ["hobbies", "sports", "interests", "free time"],
+      answer:
+        "I love playing cricket and badminton — they keep me active and help me clear my mind. I also enjoy exploring new AI tools and tech trends in my free time.",
     },
     {
       keywords: ["contact", "linkedin", "email", "reach you"],
       answer:
-        "You can reach me at marvinmaster17@gmail.com or connect with me on LinkedIn: linkedin.com/in/marvin-showkat/",
+        "You can contact me at marvinmaster17@gmail.com or connect with me on LinkedIn at linkedin.com/in/marvin-showkat.",
+    },
+    {
+      keywords: ["thank you", "thanks", "appreciate"],
+      answer:
+        "You’re most welcome! It was great chatting with you. I hope you got to know me better.",
     },
   ];
 
-  // 🧩 Find best match
-  let reply = "Sorry, I’m not sure about this. You’re most welcome to ask me about Marvin.";
+  // 🔍 Match user question with Marvin’s knowledge base
+  let reply = "Hmm, I’m not sure about that — but feel free to ask me about Marvin’s background, skills, or goals!";
 
   for (const item of knowledge) {
     if (item.keywords.some((word) => lowerMsg.includes(word))) {
