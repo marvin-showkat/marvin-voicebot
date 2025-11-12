@@ -11,7 +11,6 @@ export default function Home() {
       alert("Sorry, your browser does not support voice input.");
       return;
     }
-
     const recognition = new window.webkitSpeechRecognition();
     recognition.lang = "en-US";
     recognition.start();
@@ -39,13 +38,10 @@ export default function Home() {
     const data = await res.json();
 
     setTimeout(() => {
-      setChat([
-        ...newChat,
-        { sender: "Marvin Bot 🤖", text: data.reply },
-      ]);
+      setChat([...newChat, { sender: "Marvin Bot 🤖", text: data.reply }]);
       setIsTyping(false);
       speakResponse(data.reply);
-    }, 800);
+    }, 700);
   };
 
   // 🔊 Bot speaks back
@@ -59,8 +55,10 @@ export default function Home() {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>🎤 Marvin’s Voice Bot</h1>
-      <p style={styles.subtitle}>Ask me anything... let’s chat and have fun!</p>
+      <h1 style={styles.title}>💬 Marvin’s Voice Bot</h1>
+      <p style={styles.subtitle}>
+        Ask me anything about Marvin — I’ll be happy to share!
+      </p>
 
       <div style={styles.chatBox}>
         {chat.map((msg, i) => (
@@ -72,22 +70,22 @@ export default function Home() {
             <span>{msg.text}</span>
           </div>
         ))}
-        {isTyping && <p style={styles.typing}>🤖 Marvin Bot is typing...</p>}
+        {isTyping && <p style={styles.typing}>🤖 Marvin Bot is thinking...</p>}
       </div>
 
       <div style={styles.inputBox}>
         <input
           style={styles.input}
-          placeholder="Type your question..."
+          placeholder="Type or ask with your voice..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
         />
         <button style={styles.sendButton} onClick={() => sendMessage()}>
-          ✉️
+          🚀
         </button>
         <button style={styles.micButton} onClick={handleVoice}>
-          🎙️
+          🎤
         </button>
       </div>
     </div>
@@ -97,7 +95,8 @@ export default function Home() {
 const styles = {
   container: {
     fontFamily: "'Poppins', sans-serif",
-    background: "linear-gradient(135deg, #f9a8d4, #a78bfa, #38bdf8)",
+    background:
+      "linear-gradient(135deg, #a78bfa 0%, #f472b6 50%, #60a5fa 100%)",
     height: "100vh",
     display: "flex",
     flexDirection: "column",
@@ -106,12 +105,11 @@ const styles = {
     padding: "20px",
     color: "#fff",
     textAlign: "center",
-    transition: "all 0.4s ease-in-out",
   },
   title: {
-    fontSize: "2.5rem",
+    fontSize: "2.8rem",
     fontWeight: "700",
-    marginBottom: "8px",
+    marginBottom: "10px",
     textShadow: "2px 2px 6px rgba(0,0,0,0.2)",
   },
   subtitle: {
@@ -122,37 +120,35 @@ const styles = {
   chatBox: {
     width: "100%",
     maxWidth: "600px",
-    minHeight: "150px",
+    minHeight: "200px",
     maxHeight: "420px",
     background: "rgba(255,255,255,0.15)",
     borderRadius: "20px",
     padding: "20px",
     overflowY: "auto",
-    boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
-    backdropFilter: "blur(10px)",
+    boxShadow: "0 8px 30px rgba(0,0,0,0.3)",
+    backdropFilter: "blur(12px)",
     marginBottom: "20px",
   },
   userMsg: {
     textAlign: "right",
-    background: "linear-gradient(90deg, #2563eb, #3b82f6)",
+    background: "linear-gradient(90deg, #3b82f6, #60a5fa)",
     display: "inline-block",
     padding: "10px 14px",
     borderRadius: "20px",
     color: "white",
     margin: "10px 0",
-    alignSelf: "flex-end",
     maxWidth: "80%",
     wordBreak: "break-word",
   },
   botMsg: {
     textAlign: "left",
-    background: "linear-gradient(90deg, #10b981, #22d3ee)",
+    background: "linear-gradient(90deg, #10b981, #14b8a6)",
     display: "inline-block",
     padding: "10px 14px",
     borderRadius: "20px",
     color: "white",
     margin: "10px 0",
-    alignSelf: "flex-start",
     maxWidth: "80%",
     wordBreak: "break-word",
   },
@@ -179,22 +175,22 @@ const styles = {
   },
   sendButton: {
     padding: "12px 18px",
-    borderRadius: "0",
     border: "none",
-    background: "linear-gradient(90deg, #3b82f6, #60a5fa)",
+    background: "linear-gradient(90deg, #2563eb, #3b82f6)",
     color: "white",
     fontWeight: "bold",
     cursor: "pointer",
+    borderRadius: "0",
     transition: "0.3s",
   },
   micButton: {
     padding: "12px 18px",
-    borderRadius: "0 25px 25px 0",
     border: "none",
     background: "linear-gradient(90deg, #f59e0b, #fbbf24)",
     color: "white",
     fontWeight: "bold",
     cursor: "pointer",
+    borderRadius: "0 25px 25px 0",
     transition: "0.3s",
   },
 };
