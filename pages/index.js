@@ -1,98 +1,200 @@
 import { useState } from "react";
 
 export default function Home() {
-  const [input, setInput] = useState("");
-  const [response, setResponse] = useState("");
-  const [listening, setListening] = useState(false);
+  const [message, setMessage] = useState("");
+  const [chat, setChat] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
 
-  // 🎧 Listen to user's voice
-  const startListening = () => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("Your browser does not support speech recognition.");
+  // 🎙️ Voice input
+  const handleVoice = () => {
+    if (!("webkitSpeechRecognition" in window)) {
+      alert("Sorry, your browser does not support voice input.");
       return;
     }
 
-    const recognition = new SpeechRecognition();
+    const recognition = new window.webkitSpeechRecognition();
     recognition.lang = "en-US";
     recognition.start();
-    setListening(true);
 
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setInput(transcript);
-      setListening(false);
-    };
-
-    recognition.onerror = (event) => {
-      console.error("Speech recognition error:", event);
-      setListening(false);
+    recognition.onresult = async function (event) {
+      const speech = event.results[0][0].transcript;
+      setMessage(speech);
+      await sendMessage(speech);
     };
   };
 
-  // 🔊 Make the bot speak the response
-  const speakResponse = (text) => {
-    const speech = new SpeechSynthesisUtterance(text);
-    speech.lang = "en-US";
-    window.speechSynthesis.speak(speech);
-  };
+  // ✉️ Send message
+  const sendMessage = async (msg = message) => {
+    if (!msg.trim()) return;
+    const newChat = [...chat, { sender: "You", text: msg }];
+    setChat(newChat);
+    setMessage("");
+    setIsTyping(true);
 
-  // 💬 Send question to backend
-  async function handleSubmit(e) {
-    e.preventDefault();
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: input }),
+      body: JSON.stringify({ message: msg }),
     });
     const data = await res.json();
-    setResponse(data.reply);
-    speakResponse(data.reply); // Make it talk
-  }
+
+    setTimeout(() => {
+      setChat([
+        ...newChat,
+        { sender: "Marvin Bot 🤖", text: data.reply },
+      ]);
+      setIsTyping(false);
+      speakResponse(data.reply);
+    }, 800);
+  };
+
+  // 🔊 Bot speaks back
+  const speakResponse = (text) => {
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    speech.pitch = 1.1;
+    speech.rate = 1;
+    window.speechSynthesis.speak(speech);
+  };
 
   return (
-    <div style={{ textAlign: "center", padding: "50px", fontFamily: "sans-serif" }}>
-      <h1>🎤 Marvin’s Voice Bot</h1>
-      <p>Ask me anything you'd like — by typing or speaking!</p>
+    <div style={styles.container}>
+      <h1 style={styles.title}>🎤 Marvin’s Voice Bot</h1>
+      <p style={styles.subtitle}>Ask me anything... let’s chat and have fun!</p>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          style={{ padding: "10px", width: "300px" }}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your question..."
-        />
-        <button
-          style={{ padding: "10px 20px", marginLeft: "10px" }}
-          type="submit"
-        >
-          Ask
-        </button>
-      </form>
-
-      <div style={{ marginTop: "20px" }}>
-        <button
-          onClick={startListening}
-          style={{
-            backgroundColor: listening ? "red" : "#0070f3",
-            color: "white",
-            padding: "10px 20px",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >
-          {listening ? "Listening..." : "🎙️ Speak"}
-        </button>
+      <div style={styles.chatBox}>
+        {chat.map((msg, i) => (
+          <div
+            key={i}
+            style={msg.sender === "You" ? styles.userMsg : styles.botMsg}
+          >
+            <b>{msg.sender}: </b>
+            <span>{msg.text}</span>
+          </div>
+        ))}
+        {isTyping && <p style={styles.typing}>🤖 Marvin Bot is typing...</p>}
       </div>
 
-      {response && (
-        <div style={{ marginTop: "30px" }}>
-          <h3>🤖 Bot says:</h3>
-          <p>{response}</p>
-        </div>
-      )}
+      <div style={styles.inputBox}>
+        <input
+          style={styles.input}
+          placeholder="Type your question..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+        />
+        <button style={styles.sendButton} onClick={() => sendMessage()}>
+          ✉️
+        </button>
+        <button style={styles.micButton} onClick={handleVoice}>
+          🎙️
+        </button>
+      </div>
     </div>
   );
 }
+
+const styles = {
+  container: {
+    fontFamily: "'Poppins', sans-serif",
+    background: "linear-gradient(135deg, #f9a8d4, #a78bfa, #38bdf8)",
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "20px",
+    color: "#fff",
+    textAlign: "center",
+    transition: "all 0.4s ease-in-out",
+  },
+  title: {
+    fontSize: "2.5rem",
+    fontWeight: "700",
+    marginBottom: "8px",
+    textShadow: "2px 2px 6px rgba(0,0,0,0.2)",
+  },
+  subtitle: {
+    fontSize: "1.1rem",
+    marginBottom: "20px",
+    color: "#fef3c7",
+  },
+  chatBox: {
+    width: "100%",
+    maxWidth: "600px",
+    minHeight: "150px",
+    maxHeight: "420px",
+    background: "rgba(255,255,255,0.15)",
+    borderRadius: "20px",
+    padding: "20px",
+    overflowY: "auto",
+    boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
+    backdropFilter: "blur(10px)",
+    marginBottom: "20px",
+  },
+  userMsg: {
+    textAlign: "right",
+    background: "linear-gradient(90deg, #2563eb, #3b82f6)",
+    display: "inline-block",
+    padding: "10px 14px",
+    borderRadius: "20px",
+    color: "white",
+    margin: "10px 0",
+    alignSelf: "flex-end",
+    maxWidth: "80%",
+    wordBreak: "break-word",
+  },
+  botMsg: {
+    textAlign: "left",
+    background: "linear-gradient(90deg, #10b981, #22d3ee)",
+    display: "inline-block",
+    padding: "10px 14px",
+    borderRadius: "20px",
+    color: "white",
+    margin: "10px 0",
+    alignSelf: "flex-start",
+    maxWidth: "80%",
+    wordBreak: "break-word",
+  },
+  typing: {
+    fontStyle: "italic",
+    color: "#fef9c3",
+    marginTop: "10px",
+  },
+  inputBox: {
+    display: "flex",
+    justifyContent: "center",
+    width: "100%",
+    maxWidth: "600px",
+  },
+  input: {
+    flex: 1,
+    padding: "12px",
+    borderRadius: "25px 0 0 25px",
+    border: "none",
+    outline: "none",
+    fontSize: "1rem",
+    backgroundColor: "#fff",
+    color: "#333",
+  },
+  sendButton: {
+    padding: "12px 18px",
+    borderRadius: "0",
+    border: "none",
+    background: "linear-gradient(90deg, #3b82f6, #60a5fa)",
+    color: "white",
+    fontWeight: "bold",
+    cursor: "pointer",
+    transition: "0.3s",
+  },
+  micButton: {
+    padding: "12px 18px",
+    borderRadius: "0 25px 25px 0",
+    border: "none",
+    background: "linear-gradient(90deg, #f59e0b, #fbbf24)",
+    color: "white",
+    fontWeight: "bold",
+    cursor: "pointer",
+    transition: "0.3s",
+  },
+};
